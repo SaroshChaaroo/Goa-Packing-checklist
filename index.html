@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Manifest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1c2434;
+    --ink-soft:#48506a;
+    --paper:#f4f2ea;
+    --paper-line:#d9d5c6;
+    --card:#fdfcf8;
+    --brass:#b9862f;
+    --brass-dark:#8c6520;
+    --teal:#2f6f5e;
+    --teal-dark:#1f4a3f;
+    --danger:#b04a3c;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#ece8dc;
+      --ink-soft:#a8a394;
+      --paper:#15181d;
+      --paper-line:#333229;
+      --card:#1e2229;
+      --brass:#d9a545;
+      --brass-dark:#e6b95c;
+      --teal:#3f8a75;
+      --teal-dark:#5fae98;
+      --danger:#e07362;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'IBM Plex Mono',monospace;
+    padding:0 0 40px;
+  }
+  .manifest{
+    max-width:640px;
+    margin:0 auto;
+    padding:28px 20px 8px;
+  }
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:18px;
+  }
+  .title-block h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    font-weight:600;
+    margin:0 0 4px;
+    letter-spacing:0.02em;
+  }
+  .title-block .sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .gauge{
+    text-align:right;
+    min-width:96px;
+  }
+  .gauge .num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    font-weight:600;
+    color:var(--brass-dark);
+    line-height:1;
+  }
+  .gauge .lbl{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    margin-top:2px;
+  }
+  .progress-track{
+    height:6px;
+    background:var(--paper-line);
+    border-radius:3px;
+    overflow:hidden;
+    margin-bottom:22px;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--brass);
+    width:0%;
+    transition:width 0.25s ease;
+  }
+  .stub-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:26px 0 10px;
+    cursor:pointer;
+    user-select:none;
+  }
+  .stub-row .chevron{
+    width:8px;
+    height:8px;
+    border-right:2px solid var(--ink-soft);
+    border-bottom:2px solid var(--ink-soft);
+    transform:rotate(45deg);
+    transition:transform 0.2s ease;
+    flex-shrink:0;
+  }
+  .stub-row.collapsed .chevron{
+    transform:rotate(-45deg);
+  }
+  ul.items{
+    list-style:none;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  ul.items.collapsed{
+    display:none;
+  }
+  .stub-row .idx{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;
+    font-weight:600;
+    color:var(--card);
+    background:var(--ink);
+    padding:3px 7px;
+    border-radius:3px;
+    letter-spacing:0.05em;
+  }
+  .stub-row .cat{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.03em;
+  }
+  .stub-row .count{
+    margin-left:auto;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .stub-row::after{
+    content:"";
+    flex:1;
+    border-bottom:1px dashed var(--paper-line);
+    margin-left:6px;
+  }
+  li.item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--paper-line);
+    cursor:pointer;
+    user-select:none;
+  }
+  li.item:last-child{
+    border-bottom:none;
+  }
+  li.item.editing{
+    cursor:default;
+  }
+  .box{
+    width:18px;
+    height:18px;
+    min-width:18px;
+    border:1.5px solid var(--ink-soft);
+    border-radius:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    background:var(--card);
+  }
+  .box svg{
+    width:12px;
+    height:12px;
+    opacity:0;
+    transform:scale(0.5);
+    transition:opacity 0.12s ease, transform 0.12s ease;
+  }
+  li.item.checked .box{
+    background:var(--teal);
+    border-color:var(--teal-dark);
+  }
+  li.item.checked .box svg{
+    opacity:1;
+    transform:scale(1);
+  }
+  li.item .label{
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  li.item.checked .label{
+    color:var(--ink-soft);
+    text-decoration:line-through;
+    text-decoration-color:var(--paper-line);
+  }
+  li.item.priority .label{
+    font-weight:500;
+  }
+  .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:30px;
+    padding-top:14px;
+    border-top:2px solid var(--ink);
+  }
+  .note{
+    font-size:11px;
+    color:var(--ink-soft);
+    max-width:400px;
+    line-height:1.5;
+  }
+  button.reset{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:none;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  button.reset:hover{
+    border-color:var(--danger);
+    color:var(--danger);
+  }
+  .sync-badge{
+    font-size:10px;
+    color:var(--teal-dark);
+    text-align:center;
+    margin-top:14px;
+    letter-spacing:0.04em;
+  }
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  button.link-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:4px 0;
+  }
+  button.link-btn:hover{
+    color:var(--brass-dark);
+  }
+  button.link-btn.active{
+    color:var(--teal-dark);
+  }
+  input.edit-input{
+    flex:1;
+    min-width:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:6px 8px;
+  }
+  input.edit-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  button.del-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:20px;
+    line-height:1;
+    cursor:pointer;
+    padding:0 4px;
+    flex-shrink:0;
+  }
+  li.add-row{
+    cursor:default;
+  }
+  .box.add-box{
+    color:var(--ink-soft);
+    font-size:14px;
+    font-weight:600;
+    cursor:default;
+    border-style:dashed;
+  }
+  .add-section-row{
+    display:flex;
+    gap:8px;
+    margin:24px 0 4px;
+  }
+  .cash-wrap{
+    overflow:hidden;
+  }
+  .cash-wrap.collapsed{
+    display:none;
+  }
+  .cash-day-block{
+    padding:12px 4px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .cash-day-block:last-of-type{
+    border-bottom:none;
+  }
+  .cash-day-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .cash-day-header .cash-day{
+    width:50px;
+    flex-shrink:0;
+    font-size:12.5px;
+    font-weight:500;
+    color:var(--ink);
+  }
+  .cash-day-amounts{
+    display:flex;
+    gap:10px;
+    padding-left:58px;
+  }
+  .cash-input{
+    flex:1;
+    min-width:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:6px 8px;
+  }
+  .cash-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  .cash-amount-lbl{
+    font-size:9.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    display:block;
+    margin-bottom:3px;
+  }
+  .cash-amount-col{
+    flex:1;
+    min-width:0;
+  }
+  .add-day-btn{
+    margin-top:14px;
+  }
+  .denom-toggle-row{
+    padding-left:58px;
+    margin-top:8px;
+  }
+  .denom-panel{
+    margin:10px 0 0 58px;
+    padding:12px;
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+  }
+  .denom-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+  .denom-row{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .denom-lbl{
+    font-size:10px;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+  }
+  .denom-input{
+    width:100%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:5px 6px;
+  }
+  .denom-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  .denom-total{
+    margin-top:10px;
+    padding-top:8px;
+    border-top:1px dashed var(--paper-line);
+    font-size:13px;
+    font-weight:600;
+    color:var(--brass-dark);
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .denom-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+  }
+  .denom-actions button{
+    flex:1;
+    font-size:10.5px;
+    padding:7px 8px;
+  }
+</style>
+</head>
+<body>
+<div class="manifest" id="manifestRoot">
+  <header>
+    <div class="title-block">
+      <h1>Week-long trip</h1>
+      <div class="sub">Packing manifest</div>
+    </div>
+    <div class="gauge">
+      <div class="num" id="pct">0%</div>
+      <div class="lbl"><span id="count">0 / 0</span> packed</div>
+    </div>
+  </header>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div class="toolbar">
+    <button class="link-btn" id="editModeBtn">Edit list</button>
+    <button class="link-btn" id="collapseAllBtn">Collapse all</button>
+  </div>
+
+  <div id="listRoot"></div>
+
+  <div class="footer-row">
+    <div class="note">Saved on this device only, in this browser. Bookmark or save this file so you always reopen the same copy.</div>
+    <div style="display:flex; gap:8px;">
+      <button class="reset" id="backupBtn">Backup code</button>
+      <button class="reset" id="resetBtn">Reset all</button>
+    </div>
+  </div>
+  <div class="sync-badge" id="syncBadge"></div>
+
+  <div id="backupPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px dashed var(--paper-line);">
+    <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Your backup code</div>
+    <textarea id="backupCode" readonly rows="3" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--paper-line); border-radius:4px; padding:8px; resize:none;"></textarea>
+    <div style="font-size:11px; color:var(--ink-soft); margin:8px 0 12px; line-height:1.5;">Tap the box above and select all to copy it. After you open an updated checklist file, paste it below and load it to restore your checks, edits, and cash notes.</div>
+    <textarea id="restoreInput" placeholder="Paste backup code here" rows="3" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--paper-line); border-radius:4px; padding:8px; resize:none;"></textarea>
+    <button class="reset" id="restoreBtn" style="margin-top:8px;">Load code</button>
+  </div>
+</div>
+
+<script>
+const DEFAULT_DATA = [
+  { cat: "Priority", items: [
+    "Book stay","Book party ticket","Buy rain coat","Get rain coat from Dell's","Give Ashish's dad's BP monitor"
+  ]},
+  { cat: "Before you pack", items: [
+    "Find a headcover for helmet","Locate your shoe","Get cotton wool","Clean your shoe","Trim (grooming)"
+  ]},
+  { cat: "Clothing", items: [
+    "7 days worth of everyday outfits","1-2 extra outfits for versatility","Sleepwear","2 extra t-shirts for sleep",
+    "Undergarments and socks (7+ pairs)","Light jacket or sweater","Raincoat","Shorts",
+    "Comfortable walking shoes + backup pair","Helmet headcover","Weather-specific items (umbrella, sunhat, etc.)",
+    "Watch","Belt"
+  ]},
+  { cat: "Toiletries & skincare", items: [
+    "Toothbrush, toothpaste, floss","Deodorant - underarm, perfume, body","Cotton wool","Facewash",
+    "Adaferin (get new)","Sunscreen (face + body)","Face moisturiser","Hair spray","Niacinamide",
+    "Eye concealer","Brush","Powder","Cleanser","Razor","Small towel","Other grooming items"
+  ]},
+  { cat: "Health & medical", items: [
+    "Prescription medications","Headache medicine","Cold medicine","Fever medicine","Pain medicine",
+    "Loose motion medicine","Enterogermina","Pain spray","Ankle binder","Nose drops","Eyedrops",
+    "Condoms","Band-aids","Hand sanitizer"
+  ]},
+  { cat: "Electronics", items: [
+    "Phone + charger","Laptop","Laptop charger","Keyboard","Mouse","Mouse pad","Power bank",
+    "Universal adapter (if needed)","Headphones","Tab","Tab charger"
+  ]},
+  { cat: "Documents & money", items: [
+    "Tickets or booking confirmations","Travel insurance details","Cash and cards",
+    "Copies of important documents","Aadhar card","Driving license"
+  ]},
+  { cat: "Entertainment", items: [
+    "UNO Flip cards","Book/entertainment for downtime"
+  ]},
+  { cat: "Miscellaneous", items: [
+    "Reusable water bottle","Small day bag/backpack","Snacks for transit",
+    "Plastic covers (wet clothes, liquids, organizing)","Laundry bag for dirty clothes",
+    "Plastic bag for dirty clothes","Pen"
+  ]}
+];
+
+const DENOMS = [500,200,100,50,20,10];
+
+const ITEMS_KEY = "packing-items-v2";
+const STORAGE_KEY = "packing-checklist-v1";
+const CASH_KEY_V1 = "packing-cash-v1";
+const CASH_KEY_V2 = "packing-cash-v2";
+const DEFAULT_CASH_DAYS = 7;
+
+let items = [];
+let state = {};
+let cashDays = [];
+let collapsedCats = {};
+let openDenom = {};
+let editMode = false;
+
+function slug(cat, text){
+  return (cat + "__" + text).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
+
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function b64Encode(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64Decode(str){
+  return decodeURIComponent(escape(atob(str)));
+}
+
+function emptyDenom(){
+  const d = {};
+  DENOMS.forEach(v => { d[v] = ""; });
+  return d;
+}
+
+function buildDefaultItems(){
+  return DEFAULT_DATA.map(section => ({
+    cat: section.cat,
+    items: section.items.map(text => ({ id: slug(section.cat, text), text: text }))
+  }));
+}
+
+function saveItems(){
+  try{ localStorage.setItem(ITEMS_KEY, JSON.stringify(items)); }catch(e){}
+}
+
+function loadItems(){
+  try{
+    const raw = localStorage.getItem(ITEMS_KEY);
+    if (raw){
+      items = JSON.parse(raw);
+      return;
+    }
+  }catch(e){}
+  items = buildDefaultItems();
+  saveItems();
+}
+
+function cashFlatToDays(flat){
+  const days = [];
+  for (let d = 1; d <= DEFAULT_CASH_DAYS; d++){
+    days.push({
+      id: "day-" + d,
+      note: "",
+      start: flat["day" + d + "-start"] || "",
+      end: flat["day" + d + "-end"] || "",
+      startManual: true,
+      denom: emptyDenom()
+    });
+  }
+  return days;
+}
+
+function saveCash(){
+  try{ localStorage.setItem(CASH_KEY_V2, JSON.stringify(cashDays)); }catch(e){}
+}
+
+function loadCash(){
+  try{
+    const raw = localStorage.getItem(CASH_KEY_V2);
+    if (raw){
+      cashDays = JSON.parse(raw);
+      cashDays.forEach(d => { if (!d.denom) d.denom = emptyDenom(); });
+      return;
+    }
+  }catch(e){}
+  let v1 = null;
+  try{
+    const rawV1 = localStorage.getItem(CASH_KEY_V1);
+    if (rawV1) v1 = JSON.parse(rawV1);
+  }catch(e){}
+  if (v1){
+    cashDays = cashFlatToDays(v1);
+  } else {
+    cashDays = [];
+    for (let d = 1; d <= DEFAULT_CASH_DAYS; d++){
+      cashDays.push({ id: "day-" + d, note: "", start: "", end: "", startManual: false, denom: emptyDenom() });
+    }
+  }
+  saveCash();
+}
+
+const checkSVG = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8.5L6.2 11.7L13 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+function render(){
+  const root = document.getElementById("listRoot");
+  root.innerHTML = "";
+  let total = 0, done = 0;
+
+  items.forEach((section, sIdx) => {
+    const stub = document.createElement("div");
+    stub.className = "stub-row" + (collapsedCats[section.cat] ? " collapsed" : "");
+    const idxLabel = String(sIdx + 1).padStart(2, "0");
+    stub.innerHTML = '<span class="chevron"></span><span class="idx">' + idxLabel + '</span><span class="cat">' + escapeHtml(section.cat) + '</span><span class="count" data-count="' + sIdx + '"></span>';
+    root.appendChild(stub);
+
+    const ul = document.createElement("ul");
+    ul.className = "items" + (collapsedCats[section.cat] ? " collapsed" : "");
+
+    stub.addEventListener("click", () => {
+      collapsedCats[section.cat] = !collapsedCats[section.cat];
+      stub.classList.toggle("collapsed");
+      ul.classList.toggle("collapsed");
+      updateCollapseAllLabel();
+    });
+
+    section.items.forEach(item => {
+      total++;
+      const checked = !!state[item.id];
+      if (checked) done++;
+
+      const li = document.createElement("li");
+      li.className = "item" + (checked ? " checked" : "") + (section.cat === "Priority" ? " priority" : "") + (editMode ? " editing" : "");
+
+      if (editMode){
+        li.innerHTML = '<span class="box">' + checkSVG + '</span><input class="edit-input" type="text"><button class="del-btn" aria-label="Delete item">&times;</button>';
+        const box = li.querySelector(".box");
+        box.addEventListener("click", (e) => { e.stopPropagation(); toggle(item.id); });
+        const inp = li.querySelector(".edit-input");
+        inp.value = item.text;
+        inp.addEventListener("click", e => e.stopPropagation());
+        inp.addEventListener("input", () => {
+          item.text = inp.value;
+          saveItems();
+        });
+        const delBtn = li.querySelector(".del-btn");
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          section.items = section.items.filter(it => it.id !== item.id);
+          delete state[item.id];
+          saveItems();
+          try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(err){}
+          render();
+        });
+      } else {
+        li.innerHTML = '<span class="box">' + checkSVG + '</span><span class="label">' + escapeHtml(item.text) + '</span>';
+        li.addEventListener("click", () => toggle(item.id));
+      }
+
+      ul.appendChild(li);
+    });
+
+    if (editMode){
+      const addRow = document.createElement("li");
+      addRow.className = "item add-row";
+      addRow.innerHTML = '<span class="box add-box">+</span><input class="edit-input" type="text" placeholder="Add item">';
+      const addInp = addRow.querySelector(".edit-input");
+      let added = false;
+      function commitAdd(){
+        if (added) return;
+        const val = addInp.value.trim();
+        if (!val) return;
+        added = true;
+        const newId = "new-" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+        section.items.push({ id: newId, text: val });
+        saveItems();
+        render();
+      }
+      addInp.addEventListener("keydown", (e) => { if (e.key === "Enter"){ e.preventDefault(); commitAdd(); }});
+      addInp.addEventListener("blur", commitAdd);
+      ul.appendChild(addRow);
+    }
+
+    root.appendChild(ul);
+
+    const sectionDone = section.items.filter(it => state[it.id]).length;
+    stub.querySelector('[data-count="' + sIdx + '"]').textContent = sectionDone + "/" + section.items.length;
+  });
+
+  if (editMode){
+    const addCatRow = document.createElement("div");
+    addCatRow.className = "add-section-row";
+    addCatRow.innerHTML = '<input class="edit-input" type="text" id="newCatInput" placeholder="New section name"><button class="reset" id="addCatBtn">Add section</button>';
+    root.appendChild(addCatRow);
+  }
+
+  document.getElementById("count").textContent = done + " / " + total;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById("pct").textContent = pct + "%";
+  document.getElementById("progressFill").style.width = pct + "%";
+
+  renderCashSection(root);
+  updateCollapseAllLabel();
+
+  if (editMode){
+    document.getElementById("addCatBtn").addEventListener("click", () => {
+      const inp = document.getElementById("newCatInput");
+      const val = inp.value.trim();
+      if (!val) return;
+      items.push({ cat: val, items: [] });
+      saveItems();
+      render();
+    });
+  }
+}
+
+function renderCashSection(root){
+  const catKey = "Cash in hand";
+  const stub = document.createElement("div");
+  stub.className = "stub-row" + (collapsedCats[catKey] ? " collapsed" : "");
+  const idxLabel = String(items.length + 1).padStart(2, "0");
+  stub.innerHTML = '<span class="chevron"></span><span class="idx">' + idxLabel + '</span><span class="cat">' + catKey + '</span><span class="count"></span>';
+  root.appendChild(stub);
+
+  const wrap = document.createElement("div");
+  wrap.className = "cash-wrap" + (collapsedCats[catKey] ? " collapsed" : "");
+
+  cashDays.forEach((day, idx) => {
+    const block = document.createElement("div");
+    block.className = "cash-day-block";
+
+    const headerRow = document.createElement("div");
+    headerRow.className = "cash-day-header";
+
+    const dayLabel = document.createElement("span");
+    dayLabel.className = "cash-day";
+    dayLabel.textContent = "Day " + (idx + 1);
+    headerRow.appendChild(dayLabel);
+
+    const noteInput = document.createElement("input");
+    noteInput.type = "text";
+    noteInput.className = "edit-input";
+    noteInput.placeholder = "Where are you today?";
+    noteInput.value = day.note || "";
+    noteInput.addEventListener("input", () => {
+      day.note = noteInput.value;
+      saveCash();
+    });
+    headerRow.appendChild(noteInput);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "del-btn";
+    delBtn.innerHTML = "&times;";
+    delBtn.setAttribute("aria-label", "Remove day");
+    delBtn.addEventListener("click", () => {
+      cashDays = cashDays.filter(d0 => d0.id !== day.id);
+      saveCash();
+      render();
+    });
+    headerRow.appendChild(delBtn);
+
+    block.appendChild(headerRow);
+
+    const amountsRow = document.createElement("div");
+    amountsRow.className = "cash-day-amounts";
+
+    const startCol = document.createElement("div");
+    startCol.className = "cash-amount-col";
+    const startLbl = document.createElement("span");
+    startLbl.className = "cash-amount-lbl";
+    startLbl.textContent = "Start of day";
+    startCol.appendChild(startLbl);
+    const startInput = document.createElement("input");
+    startInput.type = "number";
+    startInput.inputMode = "decimal";
+    startInput.className = "cash-input";
+    startInput.placeholder = "0";
+    startInput.id = "cash-start-" + day.id;
+    startInput.value = day.start || "";
+    function commitStart(val){
+      day.start = val;
+      day.startManual = true;
+      saveCash();
+      showSync("Saved");
+      startInput.value = val;
+    }
+    startInput.addEventListener("input", () => commitStart(startInput.value));
+    startCol.appendChild(startInput);
+    amountsRow.appendChild(startCol);
+
+    const endCol = document.createElement("div");
+    endCol.className = "cash-amount-col";
+    const endLbl = document.createElement("span");
+    endLbl.className = "cash-amount-lbl";
+    endLbl.textContent = "End of day";
+    endCol.appendChild(endLbl);
+    const endInput = document.createElement("input");
+    endInput.type = "number";
+    endInput.inputMode = "decimal";
+    endInput.className = "cash-input";
+    endInput.placeholder = "0";
+    endInput.id = "cash-end-" + day.id;
+    endInput.value = day.end || "";
+    function commitEnd(val){
+      day.end = val;
+      saveCash();
+      showSync("Saved");
+      endInput.value = val;
+      const next = cashDays[idx + 1];
+      if (next && !next.startManual){
+        next.start = val;
+        saveCash();
+        const nextEl = document.getElementById("cash-start-" + next.id);
+        if (nextEl) nextEl.value = val;
+      }
+    }
+    endInput.addEventListener("input", () => commitEnd(endInput.value));
+    endCol.appendChild(endInput);
+    amountsRow.appendChild(endCol);
+
+    block.appendChild(amountsRow);
+
+    const denomToggleRow = document.createElement("div");
+    denomToggleRow.className = "denom-toggle-row";
+    const denomToggleBtn = document.createElement("button");
+    denomToggleBtn.className = "link-btn";
+    denomToggleBtn.textContent = openDenom[day.id] ? "- Hide denominations" : "+ Count denominations";
+    denomToggleRow.appendChild(denomToggleBtn);
+    block.appendChild(denomToggleRow);
+
+    if (openDenom[day.id]){
+      const panel = document.createElement("div");
+      panel.className = "denom-panel";
+
+      const grid = document.createElement("div");
+      grid.className = "denom-grid";
+
+      function recomputeTotal(){
+        let sum = 0;
+        DENOMS.forEach(v => {
+          const c = parseFloat(day.denom[v]) || 0;
+          sum += c * v;
+        });
+        return sum;
+      }
+
+      const totalDiv = document.createElement("div");
+      totalDiv.className = "denom-total";
+
+      function refreshTotal(){
+        totalDiv.textContent = "Total: \u20b9" + recomputeTotal();
+      }
+
+      DENOMS.forEach(v => {
+        const row = document.createElement("div");
+        row.className = "denom-row";
+        const lbl = document.createElement("span");
+        lbl.className = "denom-lbl";
+        lbl.textContent = "\u20b9" + v + " x";
+        row.appendChild(lbl);
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.inputMode = "numeric";
+        inp.min = "0";
+        inp.className = "denom-input";
+        inp.placeholder = "0";
+        inp.value = day.denom[v] || "";
+        inp.addEventListener("input", () => {
+          day.denom[v] = inp.value;
+          saveCash();
+          refreshTotal();
+        });
+        row.appendChild(inp);
+        grid.appendChild(row);
+      });
+
+      panel.appendChild(grid);
+      refreshTotal();
+      panel.appendChild(totalDiv);
+
+      const actions = document.createElement("div");
+      actions.className = "denom-actions";
+      const useStartBtn = document.createElement("button");
+      useStartBtn.className = "reset";
+      useStartBtn.textContent = "Use as Start";
+      useStartBtn.addEventListener("click", () => commitStart(String(recomputeTotal())));
+      const useEndBtn = document.createElement("button");
+      useEndBtn.className = "reset";
+      useEndBtn.textContent = "Use as End";
+      useEndBtn.addEventListener("click", () => commitEnd(String(recomputeTotal())));
+      actions.appendChild(useStartBtn);
+      actions.appendChild(useEndBtn);
+      panel.appendChild(actions);
+
+      block.appendChild(panel);
+    }
+
+    denomToggleBtn.addEventListener("click", () => {
+      openDenom[day.id] = !openDenom[day.id];
+      render();
+    });
+
+    wrap.appendChild(block);
+  });
+
+  const addDayBtn = document.createElement("button");
+  addDayBtn.className = "reset add-day-btn";
+  addDayBtn.textContent = "+ Add day";
+  addDayBtn.addEventListener("click", () => {
+    const prev = cashDays[cashDays.length - 1];
+    cashDays.push({
+      id: "day-" + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      note: "",
+      start: prev ? prev.end : "",
+      end: "",
+      startManual: false,
+      denom: emptyDenom()
+    });
+    saveCash();
+    render();
+  });
+  wrap.appendChild(addDayBtn);
+
+  root.appendChild(wrap);
+
+  stub.addEventListener("click", () => {
+    collapsedCats[catKey] = !collapsedCats[catKey];
+    stub.classList.toggle("collapsed");
+    wrap.classList.toggle("collapsed");
+    updateCollapseAllLabel();
+  });
+}
+
+function allSectionKeys(){
+  return items.map(s => s.cat).concat(["Cash in hand"]);
+}
+
+function updateCollapseAllLabel(){
+  const btn = document.getElementById("collapseAllBtn");
+  const allCollapsed = allSectionKeys().every(cat => collapsedCats[cat]);
+  btn.textContent = allCollapsed ? "Expand all" : "Collapse all";
+}
+
+function toggle(id){
+  state[id] = !state[id];
+  render();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSync("Saved");
+  }catch(e){
+    showSync("Save failed");
+  }
+}
+
+let syncTimer;
+function showSync(msg){
+  const badge = document.getElementById("syncBadge");
+  badge.textContent = msg;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { badge.textContent = ""; }, 1500);
+}
+
+function load(){
+  loadItems();
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw){
+      state = JSON.parse(raw);
+    }
+  }catch(e){
+    state = {};
+  }
+  loadCash();
+  render();
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Uncheck every item on this manifest?")) return;
+  state = {};
+  render();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSync("Reset");
+  }catch(e){
+    showSync("Reset failed");
+  }
+});
+
+const backupPanel = document.getElementById("backupPanel");
+document.getElementById("backupBtn").addEventListener("click", () => {
+  const visible = backupPanel.style.display !== "none";
+  backupPanel.style.display = visible ? "none" : "block";
+  if (!visible){
+    const code = b64Encode(JSON.stringify({ items: items, checklist: state, cashDays: cashDays }));
+    const box = document.getElementById("backupCode");
+    box.value = code;
+    box.focus();
+    box.select();
+  }
+});
+
+document.getElementById("restoreBtn").addEventListener("click", () => {
+  const raw = document.getElementById("restoreInput").value.trim();
+  if (!raw){
+    showSync("Paste a code first");
+    return;
+  }
+  try{
+    const restored = JSON.parse(b64Decode(raw));
+    if (restored.items) items = restored.items;
+    state = restored.checklist || {};
+    if (restored.cashDays){
+      cashDays = restored.cashDays;
+      cashDays.forEach(d => { if (!d.denom) d.denom = emptyDenom(); });
+    } else if (restored.cash){
+      cashDays = cashFlatToDays(restored.cash);
+    }
+    saveItems();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    saveCash();
+    render();
+    showSync("Restored");
+    document.getElementById("restoreInput").value = "";
+  }catch(e){
+    showSync("Invalid code");
+  }
+});
+
+document.getElementById("collapseAllBtn").addEventListener("click", () => {
+  const target = !allSectionKeys().every(cat => collapsedCats[cat]);
+  allSectionKeys().forEach(cat => { collapsedCats[cat] = target; });
+  render();
+});
+
+document.getElementById("editModeBtn").addEventListener("click", () => {
+  editMode = !editMode;
+  const btn = document.getElementById("editModeBtn");
+  btn.textContent = editMode ? "Done editing" : "Edit list";
+  btn.classList.toggle("active", editMode);
+  render();
+});
+
+load();
+</script>
+</body>
+</html>
