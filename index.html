@@ -3,753 +3,1062 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Goa Getaway — Settle Up</title>
+<title>Trip Manifest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500;1,9..144,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ocean-deep:#0E3B43;
-    --ocean:#1E7A82;
-    --coral:#FF6F5E;
-    --gold:#F2A93B;
-    --berry:#A85C7A;
-    --leaf:#4C9A6A;
-    --paper:#FBF3E7;
-    --paper-2:#F3E6D2;
-    --ink:#1F2A2E;
-    --ink-soft:#4F6A6E;
-    --line:#E3D3B8;
+    --ink:#1c2434;
+    --ink-soft:#48506a;
+    --paper:#f4f2ea;
+    --paper-line:#d9d5c6;
+    --card:#fdfcf8;
+    --brass:#b9862f;
+    --brass-dark:#8c6520;
+    --teal:#2f6f5e;
+    --teal-dark:#1f4a3f;
+    --danger:#b04a3c;
   }
-
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#ece8dc;
+      --ink-soft:#a8a394;
+      --paper:#15181d;
+      --paper-line:#333229;
+      --card:#1e2229;
+      --brass:#d9a545;
+      --brass-dark:#e6b95c;
+      --teal:#3f8a75;
+      --teal-dark:#5fae98;
+      --danger:#e07362;
+    }
+  }
   *{box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
   body{
     margin:0;
     background:var(--paper);
     color:var(--ink);
-    font-family:'Plus Jakarta Sans', sans-serif;
-    -webkit-font-smoothing:antialiased;
+    font-family:'IBM Plex Mono',monospace;
+    padding:0 0 40px;
   }
-  h1,h2,h3{
-    font-family:'Fraunces', serif;
-    margin:0;
-    font-weight:600;
-    letter-spacing:-0.01em;
-  }
-  .mono{ font-family:'IBM Plex Mono', monospace; }
-
-  /* ---------- HERO ---------- */
-  .hero{
-    position:relative;
-    overflow:hidden;
-    background:
-      radial-gradient(600px 300px at 88% -10%, rgba(242,169,59,0.55), transparent 60%),
-      linear-gradient(155deg, var(--ocean-deep) 0%, var(--ocean) 55%, var(--coral) 130%);
-    padding:64px 24px 96px;
-    color:var(--paper);
-  }
-  .hero-inner{
-    max-width:920px;
+  .manifest{
+    max-width:640px;
     margin:0 auto;
-    position:relative;
-    z-index:2;
+    padding:28px 20px 8px;
   }
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12.5px;
-    letter-spacing:0.16em;
-    text-transform:uppercase;
-    background:rgba(251,243,231,0.14);
-    border:1px solid rgba(251,243,231,0.35);
-    padding:6px 14px 6px 12px;
-    border-radius:999px;
-    margin-bottom:22px;
-  }
-  .hero h1{
-    font-size:clamp(40px, 7vw, 72px);
-    line-height:0.98;
-    font-weight:700;
-    font-style:italic;
-    max-width:12ch;
-  }
-  .hero .dates{
-    margin-top:14px;
-    font-size:16px;
-    color:rgba(251,243,231,0.82);
-    font-weight:500;
-  }
-  .hero-stats{
+  header{
     display:flex;
-    gap:40px;
-    margin-top:44px;
-    flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--ink);
+    padding-bottom:14px;
+    margin-bottom:18px;
   }
-  .hero-stat .num{
-    font-family:'Fraunces', serif;
-    font-size:clamp(26px,4vw,38px);
-    font-weight:600;
-  }
-  .hero-stat .lbl{
-    font-size:12.5px;
-    text-transform:uppercase;
-    letter-spacing:0.1em;
-    color:rgba(251,243,231,0.72);
-    margin-top:4px;
-  }
-  .sun{
-    position:absolute;
-    top:-90px; right:-60px;
-    width:280px; height:280px;
-    border-radius:50%;
-    background:radial-gradient(circle at 40% 40%, #FFDA9E, var(--gold) 65%, transparent 75%);
-    opacity:0.9;
-    z-index:1;
-  }
-  .wave{
-    position:absolute;
-    left:0; right:0; bottom:-2px;
-    width:100%; display:block; line-height:0;
-    z-index:2;
-  }
-
-  /* ---------- SECTIONS ---------- */
-  .wrap{ max-width:920px; margin:0 auto; padding:0 24px; }
-  section{ margin-top:56px; }
-  .section-head{ margin-bottom:22px; }
-  .section-head .tag{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    letter-spacing:0.14em;
-    text-transform:uppercase;
-    color:var(--coral);
-    font-weight:600;
-  }
-  .section-head h2{
-    font-size:clamp(22px,3.4vw,30px);
-    margin-top:6px;
-    color:var(--ocean-deep);
-  }
-  .section-head p{
-    margin:8px 0 0;
-    color:var(--ink-soft);
-    font-size:14.5px;
-    max-width:56ch;
-  }
-
-  /* ---------- BALANCE CARDS ---------- */
-  .balance-grid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:14px;
-  }
-  .balance-card{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:20px 18px;
-    position:relative;
-    overflow:hidden;
-  }
-  .balance-card::before{
-    content:"";
-    position:absolute; top:0; left:0; right:0; height:5px;
-    background:var(--accent, var(--ocean));
-  }
-  .balance-card .who{
-    display:flex; align-items:center; gap:10px;
-    margin-bottom:16px;
-  }
-  .avatar{
-    width:34px;height:34px;border-radius:50%;
-    background:var(--accent, var(--ocean));
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-family:'Fraunces', serif; font-weight:600; font-size:14px;
-    flex-shrink:0;
-  }
-  .who .name{ font-weight:700; font-size:15.5px; }
-  .balance-card .row{
-    display:flex; justify-content:space-between;
-    font-size:12.5px; color:var(--ink-soft);
-    padding:5px 0;
-    border-top:1px dashed var(--line);
-  }
-  .balance-card .row:first-of-type{ border-top:none; }
-  .balance-card .row span:last-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink); }
-  .balance-card .net{
-    margin-top:14px;
-    padding-top:14px;
-    border-top:1px solid var(--line);
-  }
-  .balance-card .net .amt{
-    font-family:'Fraunces', serif;
+  .title-block h1{
+    font-family:'Space Grotesk',sans-serif;
     font-size:22px;
     font-weight:600;
+    margin:0 0 4px;
+    letter-spacing:0.02em;
   }
-  .balance-card .net .lbl{
-    font-size:11.5px;
-    text-transform:uppercase;
-    letter-spacing:0.08em;
+  .title-block .sub{
+    font-size:12px;
     color:var(--ink-soft);
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .gauge{
+    text-align:right;
+    min-width:96px;
+  }
+  .gauge .num{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:26px;
+    font-weight:600;
+    color:var(--brass-dark);
+    line-height:1;
+  }
+  .gauge .lbl{
+    font-size:11px;
+    color:var(--ink-soft);
+    letter-spacing:0.06em;
+    text-transform:uppercase;
     margin-top:2px;
   }
-  .amt.positive{ color:#1E7A62; }
-  .amt.negative{ color:var(--coral); }
-
-  /* ---------- TICKETS (signature element) ---------- */
-  .tickets{
-    display:flex; flex-direction:column; gap:20px;
+  .progress-track{
+    height:6px;
+    background:var(--paper-line);
+    border-radius:3px;
+    overflow:hidden;
+    margin-bottom:22px;
   }
-  .ticket{
+  .progress-fill{
+    height:100%;
+    background:var(--brass);
+    width:0%;
+    transition:width 0.25s ease;
+  }
+  .stub-row{
     display:flex;
-    background:#fff;
-    border-radius:18px;
-    box-shadow:0 18px 40px -18px rgba(14,59,67,0.35);
-    position:relative;
-    isolation:isolate;
-  }
-  .ticket-stub{
-    width:132px;
-    flex-shrink:0;
-    background:var(--ocean-deep);
-    color:var(--paper);
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    padding:18px 8px;
-    position:relative;
-    text-align:center;
-  }
-  .ticket-stub .code{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.12em;
-    color:rgba(251,243,231,0.65);
-    margin-bottom:10px;
-  }
-  .ticket-stub .init{
-    width:46px;height:46px;border-radius:50%;
-    background:var(--accent, var(--coral));
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Fraunces', serif; font-weight:700; font-size:18px;
-    margin-bottom:8px;
-  }
-  .ticket-stub .from{ font-size:13px; font-weight:600; }
-  .ticket-seam{
-    width:0;
-    position:relative;
-    border-left:2px dashed var(--line);
-  }
-  .ticket-seam::before, .ticket-seam::after{
-    content:"";
-    position:absolute; left:50%; transform:translateX(-50%);
-    width:22px; height:22px; border-radius:50%;
-    background:var(--paper);
-  }
-  .ticket-seam::before{ top:-11px; }
-  .ticket-seam::after{ bottom:-11px; }
-  .ticket-main{
-    flex:1;
-    padding:20px 26px;
-    display:flex; align-items:center; justify-content:space-between;
-    gap:16px; flex-wrap:wrap;
-  }
-  .ticket-main .desc .to{
-    font-size:12px; text-transform:uppercase; letter-spacing:0.1em;
-    color:var(--ink-soft); font-weight:600;
-  }
-  .ticket-main .desc h3{
-    font-size:22px; margin-top:4px; color:var(--ocean-deep);
-  }
-  .ticket-main .amount{
-    text-align:right;
-  }
-  .ticket-main .amount .fig{
-    font-family:'Fraunces', serif; font-size:28px; font-weight:600; color:var(--coral);
-  }
-  .ticket-main .amount .fig .rs{ font-size:16px; font-weight:500; }
-  .ticket-main .amount .note{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px; color:var(--ink-soft); margin-top:2px;
-  }
-  .barcode{
-    height:26px; margin-top:14px;
-    background: repeating-linear-gradient(90deg, var(--ocean-deep) 0px, var(--ocean-deep) 2px, transparent 2px, transparent 5px);
-    opacity:0.85;
-  }
-  .ticket.settled{ opacity:0.8; }
-  .ticket.settled .ticket-stub{ background:var(--leaf); }
-  .fig.settled-fig{
-    font-family:'Fraunces', serif;
-    font-size:22px;
-    font-weight:600;
-    color:var(--leaf);
-  }
-  .amount .note .was{
-    text-decoration:line-through;
-    color:var(--ink-soft);
-    margin-right:6px;
-  }
-
-  /* ---------- PAYMENTS RECEIVED ---------- */
-  .payments-list{
-    display:flex; flex-direction:column; gap:14px;
-  }
-  .payment-entry{
-    background:#fff;
-    border:1px solid var(--line);
-    border-left:5px solid var(--leaf);
-    border-radius:16px;
-    padding:20px 24px;
-  }
-  .payment-head{
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:12px;
-    flex-wrap:wrap; gap:8px;
-  }
-  .payment-amt{
-    font-family:'Fraunces', serif;
-    font-size:19px;
-    font-weight:600;
-    color:var(--leaf);
-  }
-  .payment-badge{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:10.5px;
-    letter-spacing:0.1em;
-    text-transform:uppercase;
-    color:var(--leaf);
-    border:1px solid var(--leaf);
-    border-radius:999px;
-    padding:3px 10px;
-  }
-  table.led.receipt td.applied{ color:var(--leaf); font-weight:600; }
-
-  /* ---------- LEDGER ---------- */
-  .ledger-days{
-    display:flex; flex-direction:column; gap:12px;
-  }
-  details.day-details{
-    background:#fff;
-    border:1px solid var(--line);
-    border-radius:16px;
-    padding:4px 22px;
-  }
-  details.day-details summary{
+    align-items:center;
+    gap:10px;
+    margin:26px 0 10px;
     cursor:pointer;
-    padding:17px 0;
-    list-style:none;
-    display:flex; align-items:center; justify-content:space-between;
-    gap:14px;
+    user-select:none;
   }
-  details.day-details summary::-webkit-details-marker{ display:none; }
-  details.day-details[open] summary{ border-bottom:1px dashed var(--line); }
-  .day-name{
-    font-weight:700;
-    font-size:15px;
-    color:var(--ocean-deep);
-  }
-  .day-count{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:11px;
-    font-weight:500;
-    text-transform:uppercase;
-    letter-spacing:0.06em;
-    color:var(--ink-soft);
-    margin-left:8px;
-  }
-  .day-right{
-    display:flex; align-items:center; gap:16px;
+  .stub-row .chevron{
+    width:8px;
+    height:8px;
+    border-right:2px solid var(--ink-soft);
+    border-bottom:2px solid var(--ink-soft);
+    transform:rotate(45deg);
+    transition:transform 0.2s ease;
     flex-shrink:0;
   }
-  .day-total{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:14.5px;
+  .stub-row.collapsed .chevron{
+    transform:rotate(-45deg);
+  }
+  ul.items{
+    list-style:none;
+    margin:0;
+    padding:0;
+    overflow:hidden;
+  }
+  ul.items.collapsed{
+    display:none;
+  }
+  .stub-row .idx{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:11px;
     font-weight:600;
-    color:var(--coral);
+    color:var(--card);
+    background:var(--ink);
+    padding:3px 7px;
+    border-radius:3px;
+    letter-spacing:0.05em;
+  }
+  .stub-row .cat{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:0.03em;
+  }
+  .stub-row .count{
+    margin-left:auto;
+    font-size:11px;
+    color:var(--ink-soft);
+  }
+  .stub-row::after{
+    content:"";
+    flex:1;
+    border-bottom:1px dashed var(--paper-line);
+    margin-left:6px;
+  }
+  li.item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--paper-line);
+    cursor:pointer;
+    user-select:none;
+  }
+  li.item:last-child{
+    border-bottom:none;
+  }
+  li.item.editing{
+    cursor:default;
+  }
+  .box{
+    width:18px;
+    height:18px;
+    min-width:18px;
+    border:1.5px solid var(--ink-soft);
+    border-radius:3px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:transform 0.12s ease, background 0.12s ease, border-color 0.12s ease;
+    background:var(--card);
+  }
+  .box svg{
+    width:12px;
+    height:12px;
+    opacity:0;
+    transform:scale(0.5);
+    transition:opacity 0.12s ease, transform 0.12s ease;
+  }
+  li.item.checked .box{
+    background:var(--teal);
+    border-color:var(--teal-dark);
+  }
+  li.item.checked .box svg{
+    opacity:1;
+    transform:scale(1);
+  }
+  li.item .label{
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  li.item.checked .label{
+    color:var(--ink-soft);
+    text-decoration:line-through;
+    text-decoration-color:var(--paper-line);
+  }
+  li.item.priority .label{
+    font-weight:500;
+  }
+  .footer-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:30px;
+    padding-top:14px;
+    border-top:2px solid var(--ink);
+  }
+  .note{
+    font-size:11px;
+    color:var(--ink-soft);
+    max-width:400px;
+    line-height:1.5;
+  }
+  button.reset{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:none;
+    border:1px solid var(--ink-soft);
+    color:var(--ink-soft);
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
     white-space:nowrap;
   }
-  .day-total .lbl{
-    display:block;
-    font-size:9.5px;
-    font-weight:500;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-    text-align:right;
-    margin-bottom:1px;
+  button.reset:hover{
+    border-color:var(--danger);
+    color:var(--danger);
   }
-  .chevron{
-    width:20px; height:20px;
-    border-radius:50%;
-    background:var(--paper-2);
-    display:flex; align-items:center; justify-content:center;
+  .sync-badge{
+    font-size:10px;
+    color:var(--teal-dark);
+    text-align:center;
+    margin-top:14px;
+    letter-spacing:0.04em;
+  }
+  .toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  button.link-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background:none;
+    border:none;
+    color:var(--ink-soft);
+    cursor:pointer;
+    padding:4px 0;
+  }
+  button.link-btn:hover{
+    color:var(--brass-dark);
+  }
+  button.link-btn.active{
+    color:var(--teal-dark);
+  }
+  input.edit-input{
+    flex:1;
+    min-width:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:6px 8px;
+  }
+  input.edit-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  button.del-btn{
+    background:none;
+    border:none;
+    color:var(--danger);
+    font-size:20px;
+    line-height:1;
+    cursor:pointer;
+    padding:0 4px;
     flex-shrink:0;
   }
-  .chevron::after{
-    content:"+";
-    font-family:'Fraunces', serif;
-    font-size:16px;
-    line-height:1;
-    color:var(--coral);
+  li.add-row{
+    cursor:default;
   }
-  details.day-details[open] .chevron::after{ content:"–"; }
-  details.day-details table.led{ margin-top:8px; }
-  table.led{
-    width:100%; border-collapse:collapse; font-size:13.5px;
-  }
-  table.led td{
-    padding:7px 6px;
-    border-bottom:1px dashed var(--line);
-    vertical-align:top;
-  }
-  table.led tr:last-child td{ border-bottom:none; }
-  table.led td.amt{ font-family:'IBM Plex Mono', monospace; text-align:right; white-space:nowrap; }
-  table.led td.by{ color:var(--ink-soft); white-space:nowrap; }
-  table.led td.split{ color:var(--ink-soft); font-size:12px; text-align:right; }
-  table.led td.personal{ color:#B9A98A; font-style:italic; }
-
-  /* ---------- NOTES / FOOTER ---------- */
-  .notes{
-    background:var(--paper-2);
-    border:1px dashed var(--line);
-    border-radius:14px;
-    padding:18px 20px;
-    font-size:13px;
+  .box.add-box{
     color:var(--ink-soft);
-    line-height:1.6;
+    font-size:14px;
+    font-weight:600;
+    cursor:default;
+    border-style:dashed;
   }
-  .notes b{ color:var(--ink); }
-  footer{
-    text-align:center;
-    padding:50px 24px 60px;
-    color:var(--ink-soft);
+  .add-section-row{
+    display:flex;
+    gap:8px;
+    margin:24px 0 4px;
+  }
+  .cash-wrap{
+    overflow:hidden;
+  }
+  .cash-wrap.collapsed{
+    display:none;
+  }
+  .cash-day-block{
+    padding:12px 4px;
+    border-bottom:1px solid var(--paper-line);
+  }
+  .cash-day-block:last-of-type{
+    border-bottom:none;
+  }
+  .cash-day-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .cash-day-header .cash-day{
+    width:50px;
+    flex-shrink:0;
     font-size:12.5px;
+    font-weight:500;
+    color:var(--ink);
   }
-  footer .palm{ font-size:20px; margin-bottom:6px; }
-
-  @media (max-width:760px){
-    .balance-grid{ grid-template-columns:repeat(2,1fr); }
-    .hero{ padding:48px 18px 84px; }
+  .cash-day-amounts{
+    display:flex;
+    gap:10px;
+    padding-left:58px;
   }
-  @media (max-width:560px){
-    .balance-grid{ grid-template-columns:1fr; }
-    .ticket{ flex-direction:column; }
-    .ticket-stub{ width:100%; flex-direction:row; gap:10px; padding:14px; justify-content:flex-start; }
-    .ticket-stub .init{ margin-bottom:0; }
-    .ticket-seam{ display:none; }
-    .ticket-main{ padding:18px 20px; }
-    table.led td.split{ display:none; }
+  .cash-input{
+    flex:1;
+    min-width:0;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:6px 8px;
+  }
+  .cash-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  .cash-amount-lbl{
+    font-size:9.5px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    display:block;
+    margin-bottom:3px;
+  }
+  .cash-amount-col{
+    flex:1;
+    min-width:0;
+  }
+  .add-day-btn{
+    margin-top:14px;
+  }
+  .denom-toggle-row{
+    padding-left:58px;
+    margin-top:8px;
+  }
+  .denom-panel{
+    margin:10px 0 0 58px;
+    padding:12px;
+    background:var(--card);
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+  }
+  .denom-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:8px;
+  }
+  .denom-row{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+  }
+  .denom-lbl{
+    font-size:10px;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+  }
+  .denom-input{
+    width:100%;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--paper-line);
+    border-radius:4px;
+    padding:5px 6px;
+  }
+  .denom-input:focus{
+    outline:none;
+    border-color:var(--brass);
+  }
+  .denom-total{
+    margin-top:10px;
+    padding-top:8px;
+    border-top:1px dashed var(--paper-line);
+    font-size:13px;
+    font-weight:600;
+    color:var(--brass-dark);
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .denom-actions{
+    display:flex;
+    gap:8px;
+    margin-top:10px;
+  }
+  .denom-actions button{
+    flex:1;
+    font-size:10.5px;
+    padding:7px 8px;
   }
 </style>
 </head>
 <body>
+<div class="manifest" id="manifestRoot">
+  <header>
+    <div class="title-block">
+      <h1>Week-long trip</h1>
+      <div class="sub">Packing manifest</div>
+    </div>
+    <div class="gauge">
+      <div class="num" id="pct">0%</div>
+      <div class="lbl"><span id="count">0 / 0</span> packed</div>
+    </div>
+  </header>
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
-<div class="hero">
-  <div class="sun"></div>
-  <div class="hero-inner">
-    <div class="eyebrow">🌴 Trip Ledger</div>
-    <h1>Goa Getaway</h1>
-    <div class="dates">14 – 18 August 2026 · Sarosh, Pavaz, Alagesan &amp; Nihal</div>
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <div class="num">₹69,307</div>
-        <div class="lbl">Total spent</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">₹17,327</div>
-        <div class="lbl">Fair share, each</div>
-      </div>
-      <div class="hero-stat">
-        <div class="num">1</div>
-        <div class="lbl">Payments to settle</div>
-      </div>
+  <div class="toolbar">
+    <button class="link-btn" id="editModeBtn">Edit list</button>
+    <button class="link-btn" id="collapseAllBtn">Collapse all</button>
+  </div>
+
+  <div id="listRoot"></div>
+
+  <div class="footer-row">
+    <div class="note">Saved on this device only, in this browser. Bookmark or save this file so you always reopen the same copy.</div>
+    <div style="display:flex; gap:8px;">
+      <button class="reset" id="backupBtn">Backup code</button>
+      <button class="reset" id="resetBtn">Reset all</button>
     </div>
   </div>
-  <svg class="wave" viewBox="0 0 1440 90" preserveAspectRatio="none"><path fill="#FBF3E7" d="M0,64 C240,10 480,10 720,42 C960,74 1200,74 1440,32 L1440,100 L0,100 Z"></path></svg>
+  <div class="sync-badge" id="syncBadge"></div>
+
+  <div id="backupPanel" style="display:none; margin-top:20px; padding-top:16px; border-top:1px dashed var(--paper-line);">
+    <div style="font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:8px;">Your backup code</div>
+    <textarea id="backupCode" readonly rows="3" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--paper-line); border-radius:4px; padding:8px; resize:none;"></textarea>
+    <div style="font-size:11px; color:var(--ink-soft); margin:8px 0 12px; line-height:1.5;">Tap the box above and select all to copy it. After you open an updated checklist file, paste it below and load it to restore your checks, edits, and cash notes.</div>
+    <textarea id="restoreInput" placeholder="Paste backup code here" rows="3" style="width:100%; font-family:'IBM Plex Mono',monospace; font-size:11px; background:var(--card); color:var(--ink); border:1px solid var(--paper-line); border-radius:4px; padding:8px; resize:none;"></textarea>
+    <button class="reset" id="restoreBtn" style="margin-top:8px;">Load code</button>
+  </div>
 </div>
 
-<div class="wrap">
+<script>
+const DEFAULT_DATA = [
+  { cat: "Priority", items: [
+    "Book stay","Book party ticket","Buy rain coat","Get rain coat from Dell's","Give Ashish's dad's BP monitor"
+  ]},
+  { cat: "Before you pack", items: [
+    "Find a headcover for helmet","Locate your shoe","Get cotton wool","Clean your shoe","Trim (grooming)"
+  ]},
+  { cat: "Clothing", items: [
+    "7 days worth of everyday outfits","1-2 extra outfits for versatility","Sleepwear","2 extra t-shirts for sleep",
+    "Undergarments and socks (7+ pairs)","Light jacket or sweater","Raincoat","Shorts",
+    "Comfortable walking shoes + backup pair","Helmet headcover","Weather-specific items (umbrella, sunhat, etc.)",
+    "Watch","Belt"
+  ]},
+  { cat: "Toiletries & skincare", items: [
+    "Toothbrush, toothpaste, floss","Deodorant - underarm, perfume, body","Cotton wool","Facewash",
+    "Adaferin (get new)","Sunscreen (face + body)","Face moisturiser","Hair spray","Niacinamide",
+    "Eye concealer","Brush","Powder","Cleanser","Razor","Small towel","Other grooming items"
+  ]},
+  { cat: "Health & medical", items: [
+    "Prescription medications","Headache medicine","Cold medicine","Fever medicine","Pain medicine",
+    "Loose motion medicine","Enterogermina","Pain spray","Ankle binder","Nose drops","Eyedrops",
+    "Condoms","Band-aids","Hand sanitizer"
+  ]},
+  { cat: "Electronics", items: [
+    "Phone + charger","Laptop","Laptop charger","Keyboard","Mouse","Mouse pad","Power bank",
+    "Universal adapter (if needed)","Headphones","Tab","Tab charger"
+  ]},
+  { cat: "Documents & money", items: [
+    "Tickets or booking confirmations","Travel insurance details","Cash and cards",
+    "Copies of important documents","Aadhar card","Driving license"
+  ]},
+  { cat: "Entertainment", items: [
+    "UNO Flip cards","Book/entertainment for downtime"
+  ]},
+  { cat: "Miscellaneous", items: [
+    "Reusable water bottle","Small day bag/backpack","Snacks for transit",
+    "Plastic covers (wet clothes, liquids, organizing)","Laundry bag for dirty clothes",
+    "Plastic bag for dirty clothes","Pen"
+  ]}
+];
 
-  <!-- BALANCES -->
-  <section>
-    <div class="section-head">
-      <div class="tag">Balances</div>
-      <h2>Who put in what</h2>
-      <p>Each person's actual spend vs. their fair share of everything split during the trip.</p>
-    </div>
-    <div class="balance-grid">
+const DENOMS = [500,200,100,50,20,10];
 
-      <div class="balance-card" style="--accent:var(--coral)">
-        <div class="who"><div class="avatar">S</div><div class="name">Sarosh</div></div>
-        <div class="row"><span>Paid out</span><span>₹35,057.00</span></div>
-        <div class="row"><span>Fair share</span><span>₹20,355.57</span></div>
-        <div class="net">
-          <div class="amt positive">+ ₹14,701.43</div>
-          <div class="lbl">is owed</div>
-        </div>
-      </div>
+const ITEMS_KEY = "packing-items-v2";
+const STORAGE_KEY = "packing-checklist-v1";
+const CASH_KEY_V1 = "packing-cash-v1";
+const CASH_KEY_V2 = "packing-cash-v2";
+const DEFAULT_CASH_DAYS = 7;
 
-      <div class="balance-card" style="--accent:var(--gold)">
-        <div class="who"><div class="avatar">P</div><div class="name">Pavaz</div></div>
-        <div class="row"><span>Paid out</span><span>₹11,845.00</span></div>
-        <div class="row"><span>Fair share</span><span>₹18,025.30</span></div>
-        <div class="net">
-          <div class="amt negative">– ₹6,180.30</div>
-          <div class="lbl">owes</div>
-        </div>
-      </div>
+let items = [];
+let state = {};
+let cashDays = [];
+let collapsedCats = {};
+let openDenom = {};
+let editMode = false;
 
-      <div class="balance-card" style="--accent:var(--ocean)">
-        <div class="who"><div class="avatar">A</div><div class="name">Alagesan</div></div>
-        <div class="row"><span>Paid out</span><span>₹13,235.00</span></div>
-        <div class="row"><span>Fair share</span><span>₹15,580.57</span></div>
-        <div class="net">
-          <div class="amt negative">– ₹2,345.57</div>
-          <div class="lbl">owes</div>
-        </div>
-      </div>
+function slug(cat, text){
+  return (cat + "__" + text).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+}
 
-      <div class="balance-card" style="--accent:var(--berry)">
-        <div class="who"><div class="avatar">N</div><div class="name">Nihal</div></div>
-        <div class="row"><span>Paid out</span><span>₹9,170.00</span></div>
-        <div class="row"><span>Fair share</span><span>₹15,345.57</span></div>
-        <div class="net">
-          <div class="amt negative">– ₹6,175.57</div>
-          <div class="lbl">owes</div>
-        </div>
-      </div>
+function escapeHtml(str){
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
 
-    </div>
-  </section>
+function b64Encode(str){
+  return btoa(unescape(encodeURIComponent(str)));
+}
+function b64Decode(str){
+  return decodeURIComponent(escape(atob(str)));
+}
 
-  <!-- SETTLE UP -->
-  <section id="settle">
-    <div class="section-head">
-      <div class="tag">Settle Up</div>
-      <h2>One payment left to close the books</h2>
-      <p>Alagesan and Pavaz are already settled. Nihal is the only one left to pay Sarosh directly.</p>
-    </div>
-    <div class="tickets">
+function emptyDenom(){
+  const d = {};
+  DENOMS.forEach(v => { d[v] = ""; });
+  return d;
+}
 
-      <div class="ticket">
-        <div class="ticket-stub" style="--accent:var(--berry)">
-          <div class="code">GOA·2026</div>
-          <div class="init">N</div>
-          <div class="from">Nihal</div>
-        </div>
-        <div class="ticket-seam"></div>
-        <div class="ticket-main">
-          <div class="desc">
-            <div class="to">Pay to → Sarosh</div>
-            <h3>Nihal owes Sarosh</h3>
-          </div>
-          <div class="amount">
-            <div class="fig"><span class="rs">₹</span>4,001.14</div>
-            <div class="note">₹2,174.43 already received</div>
-          </div>
-        </div>
-      </div>
+function buildDefaultItems(){
+  return DEFAULT_DATA.map(section => ({
+    cat: section.cat,
+    items: section.items.map(text => ({ id: slug(section.cat, text), text: text }))
+  }));
+}
 
-      <div class="ticket settled">
-        <div class="ticket-stub" style="--accent:var(--gold)">
-          <div class="code">GOA·2026</div>
-          <div class="init">P</div>
-          <div class="from">Pavaz</div>
-        </div>
-        <div class="ticket-seam"></div>
-        <div class="ticket-main">
-          <div class="desc">
-            <div class="to">Pay to → Sarosh</div>
-            <h3>Pavaz owes Sarosh</h3>
-          </div>
-          <div class="amount">
-            <div class="fig settled-fig">✓ Settled</div>
-            <div class="note"><span class="was">was ₹6,180.30</span> cleared in full</div>
-          </div>
-        </div>
-      </div>
+function saveItems(){
+  try{ localStorage.setItem(ITEMS_KEY, JSON.stringify(items)); }catch(e){}
+}
 
-      <div class="ticket settled">
-        <div class="ticket-stub" style="--accent:var(--ocean)">
-          <div class="code">GOA·2026</div>
-          <div class="init">A</div>
-          <div class="from">Alagesan</div>
-        </div>
-        <div class="ticket-seam"></div>
-        <div class="ticket-main">
-          <div class="desc">
-            <div class="to">Pay to → Sarosh</div>
-            <h3>Alagesan owes Sarosh</h3>
-          </div>
-          <div class="amount">
-            <div class="fig settled-fig">✓ Settled</div>
-            <div class="note"><span class="was">was ₹2,345.57</span> cleared in full</div>
-          </div>
-        </div>
-      </div>
+function loadItems(){
+  try{
+    const raw = localStorage.getItem(ITEMS_KEY);
+    if (raw){
+      items = JSON.parse(raw);
+      return;
+    }
+  }catch(e){}
+  items = buildDefaultItems();
+  saveItems();
+}
 
-    </div>
-  </section>
+function cashFlatToDays(flat){
+  const days = [];
+  for (let d = 1; d <= DEFAULT_CASH_DAYS; d++){
+    days.push({
+      id: "day-" + d,
+      note: "",
+      start: flat["day" + d + "-start"] || "",
+      end: flat["day" + d + "-end"] || "",
+      startManual: true,
+      denom: emptyDenom()
+    });
+  }
+  return days;
+}
 
-  <!-- PAYMENTS RECEIVED -->
-  <section>
-    <div class="section-head">
-      <div class="tag">Payments Received</div>
-      <h2>What's already settled</h2>
-      <p>Money that's actually changed hands, applied against the balances above.</p>
-    </div>
-    <div class="payments-list">
-      <div class="payment-entry">
-        <div class="payment-head">
-          <span class="payment-amt">₹4,520.00 received by Sarosh</span>
-          <span class="payment-badge">Logged</span>
-        </div>
-        <table class="led receipt">
-          <tr><td>Alagesan</td><td class="split">balance cleared in full</td><td class="amt applied">₹2,345.57</td></tr>
-          <tr><td>Nihal</td><td class="split">applied toward balance</td><td class="amt applied">₹2,174.43</td></tr>
-        </table>
-      </div>
-      <div class="payment-entry">
-        <div class="payment-head">
-          <span class="payment-amt">₹6,180.30 received by Sarosh</span>
-          <span class="payment-badge">Logged</span>
-        </div>
-        <table class="led receipt">
-          <tr><td>Pavaz</td><td class="split">balance cleared in full</td><td class="amt applied">₹6,180.30</td></tr>
-        </table>
-      </div>
-    </div>
-  </section>
+function saveCash(){
+  try{ localStorage.setItem(CASH_KEY_V2, JSON.stringify(cashDays)); }catch(e){}
+}
 
-  <!-- LEDGER -->
-  <section>
-    <div class="section-head">
-      <div class="tag">Ledger</div>
-      <h2>Full expense log</h2>
-      <p>56 entries across five days — tap a day to expand it.</p>
-    </div>
-    <div class="ledger-days">
+function loadCash(){
+  try{
+    const raw = localStorage.getItem(CASH_KEY_V2);
+    if (raw){
+      cashDays = JSON.parse(raw);
+      cashDays.forEach(d => { if (!d.denom) d.denom = emptyDenom(); });
+      return;
+    }
+  }catch(e){}
+  let v1 = null;
+  try{
+    const rawV1 = localStorage.getItem(CASH_KEY_V1);
+    if (rawV1) v1 = JSON.parse(rawV1);
+  }catch(e){}
+  if (v1){
+    cashDays = cashFlatToDays(v1);
+  } else {
+    cashDays = [];
+    for (let d = 1; d <= DEFAULT_CASH_DAYS; d++){
+      cashDays.push({ id: "day-" + d, note: "", start: "", end: "", startManual: false, denom: emptyDenom() });
+    }
+  }
+  saveCash();
+}
 
-      <details class="day-details">
-        <summary>
-          <span class="day-name">Thu, 14 Aug<span class="day-count">· 14 entries</span></span>
-          <span class="day-right"><span class="day-total"><span class="lbl">Day total</span>₹16,365.00</span><span class="chevron"></span></span>
-        </summary>
-        <table class="led">
-          <tr><td>Scoty rent 2400 + 1k advance + 100 fuel</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹2,500.00</td></tr>
-          <tr><td>Mapusa fuel</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹250.00</td></tr>
-          <tr><td>Beer</td><td class="by">Sarosh</td><td class="split personal">personal</td><td class="amt">₹130.00</td></tr>
-          <tr><td>Beer</td><td class="by">Sarosh</td><td class="split personal">personal</td><td class="amt">₹170.00</td></tr>
-          <tr><td>Cool drink</td><td class="by">Sarosh</td><td class="split">Pavaz</td><td class="amt">₹30.00</td></tr>
-          <tr><td>Lunch</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹750.00</td></tr>
-          <tr><td>Cig</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹250.00</td></tr>
-          <tr><td>Shwrma n water</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹270.00</td></tr>
-          <tr><td>Breakfast anjuna</td><td class="by">Pavaz</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹520.00</td></tr>
-          <tr><td>Hosteller</td><td class="by">Pavaz</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹995.00</td></tr>
-          <tr><td>Dinner</td><td class="by">Pavaz</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹350.00</td></tr>
-          <tr><td>Fuel</td><td class="by">Pavaz</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹150.00</td></tr>
-          <tr><td>Party</td><td class="by">Alagesan</td><td class="split">Alagesan &amp; Pavaz</td><td class="amt">₹5,000.00</td></tr>
-          <tr><td>Party</td><td class="by">Nihal</td><td class="split">Nihal &amp; Sarosh</td><td class="amt">₹5,000.00</td></tr>
-        </table>
-      </details>
+const checkSVG = '<svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 8.5L6.2 11.7L13 4" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-      <details class="day-details">
-        <summary>
-          <span class="day-name">Fri, 15 Aug<span class="day-count">· 16 entries</span></span>
-          <span class="day-right"><span class="day-total"><span class="lbl">Day total</span>₹30,285.00</span><span class="chevron"></span></span>
-        </summary>
-        <table class="led">
-          <tr><td>Pavz–Nihal room</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹4,250.00</td></tr>
-          <tr><td>Room total ₹4,500</td><td class="by">Sarosh</td><td class="split">All 4</td><td class="amt">₹250.00</td></tr>
-          <tr><td>Cig</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹250.00</td></tr>
-          <tr><td>Cig</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹500.00</td></tr>
-          <tr><td>lighter</td><td class="by">Sarosh</td><td class="split personal">personal</td><td class="amt">₹40.00</td></tr>
-          <tr><td>3 beer</td><td class="by">Sarosh</td><td class="split">Nihal, Sarosh &amp; Alagesan</td><td class="amt">₹330.00</td></tr>
-          <tr><td>LnP 3.5 each</td><td class="by">Sarosh</td><td class="split">All 4</td><td class="amt">₹14,000.00</td></tr>
-          <tr><td>Bonda</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹280.00</td></tr>
-          <tr><td>Room</td><td class="by">Alagesan</td><td class="split">All 4</td><td class="amt">₹4,000.00</td></tr>
-          <tr><td>Shop</td><td class="by">Alagesan</td><td class="split">All 4</td><td class="amt">₹415.00</td></tr>
-          <tr><td>Shop</td><td class="by">Alagesan</td><td class="split">All 4</td><td class="amt">₹415.00</td></tr>
-          <tr><td>Saturday lunch (part)</td><td class="by">Alagesan</td><td class="split">Sarosh &amp; Alagesan</td><td class="amt">₹230.00</td></tr>
-          <tr><td>Saturday lunch (rest)</td><td class="by">Alagesan</td><td class="split">All 4</td><td class="amt">₹1,820.00</td></tr>
-          <tr><td>Saturday dinner</td><td class="by">Alagesan</td><td class="split">All 4</td><td class="amt">₹1,355.00</td></tr>
-          <tr><td>Room</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹1,600.00</td></tr>
-          <tr><td>Raincoat</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹550.00</td></tr>
-        </table>
-      </details>
+function render(){
+  const root = document.getElementById("listRoot");
+  root.innerHTML = "";
+  let total = 0, done = 0;
 
-      <details class="day-details">
-        <summary>
-          <span class="day-name">Sat, 16 Aug<span class="day-count">· 10 entries</span></span>
-          <span class="day-right"><span class="day-total"><span class="lbl">Day total</span>₹11,690.00</span><span class="chevron"></span></span>
-        </summary>
-        <table class="led">
-          <tr><td>Party — room ₹6,500 total (Pavaz put in ₹500 already)</td><td class="by">Sarosh</td><td class="split">All 4, ₹1,625 ea.</td><td class="amt">₹6,000.00</td></tr>
-          <tr><td>Party</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹500.00</td></tr>
-          <tr><td>Alch</td><td class="by">Sarosh</td><td class="split">Nihal, Sarosh &amp; Alagesan</td><td class="amt">₹790.00</td></tr>
-          <tr><td>Lunch at Monkey — Pavaz's part</td><td class="by">Pavaz</td><td class="split personal">personal</td><td class="amt">₹481.05</td></tr>
-          <tr><td>Lunch at Monkey — shared part</td><td class="by">Pavaz</td><td class="split">Sarosh, Nihal &amp; Alagesan</td><td class="amt">₹1,897.96</td></tr>
-          <tr><td>Lunch at Monkey — group part</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹620.99</td></tr>
-          <tr><td>Chocolates for party</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹500.00</td></tr>
-          <tr><td>Parking</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹200.00</td></tr>
-          <tr><td>Sunday soup</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹500.00</td></tr>
-          <tr><td>Water party</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹200.00</td></tr>
-        </table>
-      </details>
+  items.forEach((section, sIdx) => {
+    const stub = document.createElement("div");
+    stub.className = "stub-row" + (collapsedCats[section.cat] ? " collapsed" : "");
+    const idxLabel = String(sIdx + 1).padStart(2, "0");
+    stub.innerHTML = '<span class="chevron"></span><span class="idx">' + idxLabel + '</span><span class="cat">' + escapeHtml(section.cat) + '</span><span class="count" data-count="' + sIdx + '"></span>';
+    root.appendChild(stub);
 
-      <details class="day-details">
-        <summary>
-          <span class="day-name">Sun, 17 Aug<span class="day-count">· 9 entries</span></span>
-          <span class="day-right"><span class="day-total"><span class="lbl">Day total</span>₹3,637.00</span><span class="chevron"></span></span>
-        </summary>
-        <table class="led">
-          <tr><td>Booze n snacks (part)</td><td class="by">Sarosh</td><td class="split">Sarosh, Nihal &amp; Alagesan</td><td class="amt">₹975.00</td></tr>
-          <tr><td>Booze n snacks (part)</td><td class="by">Sarosh</td><td class="split">Nihal &amp; Alagesan</td><td class="amt">₹205.00</td></tr>
-          <tr><td>Booze n snacks (part)</td><td class="by">Sarosh</td><td class="split personal">personal</td><td class="amt">₹250.00</td></tr>
-          <tr><td>Booze n snacks (rest)</td><td class="by">Sarosh</td><td class="split">All 4</td><td class="amt">₹219.00</td></tr>
-          <tr><td>Scoty extend</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹600.00</td></tr>
-          <tr><td>Alchl beer n buxzz</td><td class="by">Sarosh</td><td class="split">Nihal, Sarosh &amp; Alagesan</td><td class="amt">₹500.00</td></tr>
-          <tr><td>Sweet curd</td><td class="by">Sarosh</td><td class="split">Pavaz</td><td class="amt">₹138.00</td></tr>
-          <tr><td>Evening alch n food (part)</td><td class="by">Sarosh</td><td class="split">Sarosh, Nihal &amp; Alagesan</td><td class="amt">₹470.00</td></tr>
-          <tr><td>Evening alch n food (rest)</td><td class="by">Sarosh</td><td class="split">All 4</td><td class="amt">₹280.00</td></tr>
-        </table>
-      </details>
+    const ul = document.createElement("ul");
+    ul.className = "items" + (collapsedCats[section.cat] ? " collapsed" : "");
 
-      <details class="day-details">
-        <summary>
-          <span class="day-name">Mon, 18 Aug<span class="day-count">· 7 entries</span></span>
-          <span class="day-right"><span class="day-total"><span class="lbl">Day total</span>₹7,330.00</span><span class="chevron"></span></span>
-        </summary>
-        <table class="led">
-          <tr><td>Beer — Sarosh &amp; Alagesan</td><td class="by">Sarosh</td><td class="split">Sarosh &amp; Alagesan</td><td class="amt">₹240.00</td></tr>
-          <tr><td>Coconut and water</td><td class="by">Sarosh</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹170.00</td></tr>
-          <tr><td>Lunch (dopyaza)</td><td class="by">Pavaz</td><td class="split">All 4</td><td class="amt">₹1,300.00</td></tr>
-          <tr><td>Petrol</td><td class="by">Nihal</td><td class="split">Pavaz &amp; Sarosh</td><td class="amt">₹120.00</td></tr>
-          <tr><td>Dro (part)</td><td class="by">Sarosh</td><td class="split">Sarosh &amp; Pavaz</td><td class="amt">₹900.00</td></tr>
-          <tr><td>Dro (rest)</td><td class="by">Sarosh</td><td class="split">All 4</td><td class="amt">₹3,600.00</td></tr>
-          <tr><td>Pot</td><td class="by">Nihal</td><td class="split">All 4</td><td class="amt">₹1,000.00</td></tr>
-        </table>
-      </details>
+    stub.addEventListener("click", () => {
+      collapsedCats[section.cat] = !collapsedCats[section.cat];
+      stub.classList.toggle("collapsed");
+      ul.classList.toggle("collapsed");
+      updateCollapseAllLabel();
+    });
 
-    </div>
-  </section>
+    section.items.forEach(item => {
+      total++;
+      const checked = !!state[item.id];
+      if (checked) done++;
 
-  <!-- NOTES -->
-  <section>
-    <div class="notes">
-      <b>How this was worked out:</b> every expense was split only among the people listed under "Shared By" — rows with no one listed (a few of Sarosh's solo drinks) were treated as personal spends and left out of the split. "Pavaj" and "Pavaz" in the source sheet were treated as the same person. The two Aug 14 "Party" entries are now split just between the pairs who paid them (Alagesan &amp; Pavaz, and Nihal &amp; Sarosh), not all four. For the Aug 16 room entry, the ₹1,625-each split noted in the sheet was used directly, since Pavaz had already put in ₹500 toward it separately. Figures are shown to the paisa for accuracy — round to the nearest ₹10 if that's easier to actually pay.
-    </div>
-  </section>
+      const li = document.createElement("li");
+      li.className = "item" + (checked ? " checked" : "") + (section.cat === "Priority" ? " priority" : "") + (editMode ? " editing" : "");
 
-</div>
+      if (editMode){
+        li.innerHTML = '<span class="box">' + checkSVG + '</span><input class="edit-input" type="text"><button class="del-btn" aria-label="Delete item">&times;</button>';
+        const box = li.querySelector(".box");
+        box.addEventListener("click", (e) => { e.stopPropagation(); toggle(item.id); });
+        const inp = li.querySelector(".edit-input");
+        inp.value = item.text;
+        inp.addEventListener("click", e => e.stopPropagation());
+        inp.addEventListener("input", () => {
+          item.text = inp.value;
+          saveItems();
+        });
+        const delBtn = li.querySelector(".del-btn");
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          section.items = section.items.filter(it => it.id !== item.id);
+          delete state[item.id];
+          saveItems();
+          try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(err){}
+          render();
+        });
+      } else {
+        li.innerHTML = '<span class="box">' + checkSVG + '</span><span class="label">' + escapeHtml(item.text) + '</span>';
+        li.addEventListener("click", () => toggle(item.id));
+      }
 
-<footer>
-  <div class="palm">🌊</div>
-  Goa · 14–18 Aug 2026
-</footer>
+      ul.appendChild(li);
+    });
 
+    if (editMode){
+      const addRow = document.createElement("li");
+      addRow.className = "item add-row";
+      addRow.innerHTML = '<span class="box add-box">+</span><input class="edit-input" type="text" placeholder="Add item">';
+      const addInp = addRow.querySelector(".edit-input");
+      let added = false;
+      function commitAdd(){
+        if (added) return;
+        const val = addInp.value.trim();
+        if (!val) return;
+        added = true;
+        const newId = "new-" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+        section.items.push({ id: newId, text: val });
+        saveItems();
+        render();
+      }
+      addInp.addEventListener("keydown", (e) => { if (e.key === "Enter"){ e.preventDefault(); commitAdd(); }});
+      addInp.addEventListener("blur", commitAdd);
+      ul.appendChild(addRow);
+    }
+
+    root.appendChild(ul);
+
+    const sectionDone = section.items.filter(it => state[it.id]).length;
+    stub.querySelector('[data-count="' + sIdx + '"]').textContent = sectionDone + "/" + section.items.length;
+  });
+
+  if (editMode){
+    const addCatRow = document.createElement("div");
+    addCatRow.className = "add-section-row";
+    addCatRow.innerHTML = '<input class="edit-input" type="text" id="newCatInput" placeholder="New section name"><button class="reset" id="addCatBtn">Add section</button>';
+    root.appendChild(addCatRow);
+  }
+
+  document.getElementById("count").textContent = done + " / " + total;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById("pct").textContent = pct + "%";
+  document.getElementById("progressFill").style.width = pct + "%";
+
+  renderCashSection(root);
+  updateCollapseAllLabel();
+
+  if (editMode){
+    document.getElementById("addCatBtn").addEventListener("click", () => {
+      const inp = document.getElementById("newCatInput");
+      const val = inp.value.trim();
+      if (!val) return;
+      items.push({ cat: val, items: [] });
+      saveItems();
+      render();
+    });
+  }
+}
+
+function renderCashSection(root){
+  const catKey = "Cash in hand";
+  const stub = document.createElement("div");
+  stub.className = "stub-row" + (collapsedCats[catKey] ? " collapsed" : "");
+  const idxLabel = String(items.length + 1).padStart(2, "0");
+  stub.innerHTML = '<span class="chevron"></span><span class="idx">' + idxLabel + '</span><span class="cat">' + catKey + '</span><span class="count"></span>';
+  root.appendChild(stub);
+
+  const wrap = document.createElement("div");
+  wrap.className = "cash-wrap" + (collapsedCats[catKey] ? " collapsed" : "");
+
+  cashDays.forEach((day, idx) => {
+    const block = document.createElement("div");
+    block.className = "cash-day-block";
+
+    const headerRow = document.createElement("div");
+    headerRow.className = "cash-day-header";
+
+    const dayLabel = document.createElement("span");
+    dayLabel.className = "cash-day";
+    dayLabel.textContent = "Day " + (idx + 1);
+    headerRow.appendChild(dayLabel);
+
+    const noteInput = document.createElement("input");
+    noteInput.type = "text";
+    noteInput.className = "edit-input";
+    noteInput.placeholder = "Where are you today?";
+    noteInput.value = day.note || "";
+    noteInput.addEventListener("input", () => {
+      day.note = noteInput.value;
+      saveCash();
+    });
+    headerRow.appendChild(noteInput);
+
+    const delBtn = document.createElement("button");
+    delBtn.className = "del-btn";
+    delBtn.innerHTML = "&times;";
+    delBtn.setAttribute("aria-label", "Remove day");
+    delBtn.addEventListener("click", () => {
+      cashDays = cashDays.filter(d0 => d0.id !== day.id);
+      saveCash();
+      render();
+    });
+    headerRow.appendChild(delBtn);
+
+    block.appendChild(headerRow);
+
+    const amountsRow = document.createElement("div");
+    amountsRow.className = "cash-day-amounts";
+
+    const startCol = document.createElement("div");
+    startCol.className = "cash-amount-col";
+    const startLbl = document.createElement("span");
+    startLbl.className = "cash-amount-lbl";
+    startLbl.textContent = "Start of day";
+    startCol.appendChild(startLbl);
+    const startInput = document.createElement("input");
+    startInput.type = "number";
+    startInput.inputMode = "decimal";
+    startInput.className = "cash-input";
+    startInput.placeholder = "0";
+    startInput.id = "cash-start-" + day.id;
+    startInput.value = day.start || "";
+    function commitStart(val){
+      day.start = val;
+      day.startManual = true;
+      saveCash();
+      showSync("Saved");
+      startInput.value = val;
+    }
+    startInput.addEventListener("input", () => commitStart(startInput.value));
+    startCol.appendChild(startInput);
+    amountsRow.appendChild(startCol);
+
+    const endCol = document.createElement("div");
+    endCol.className = "cash-amount-col";
+    const endLbl = document.createElement("span");
+    endLbl.className = "cash-amount-lbl";
+    endLbl.textContent = "End of day";
+    endCol.appendChild(endLbl);
+    const endInput = document.createElement("input");
+    endInput.type = "number";
+    endInput.inputMode = "decimal";
+    endInput.className = "cash-input";
+    endInput.placeholder = "0";
+    endInput.id = "cash-end-" + day.id;
+    endInput.value = day.end || "";
+    function commitEnd(val){
+      day.end = val;
+      saveCash();
+      showSync("Saved");
+      endInput.value = val;
+      const next = cashDays[idx + 1];
+      if (next && !next.startManual){
+        next.start = val;
+        saveCash();
+        const nextEl = document.getElementById("cash-start-" + next.id);
+        if (nextEl) nextEl.value = val;
+      }
+    }
+    endInput.addEventListener("input", () => commitEnd(endInput.value));
+    endCol.appendChild(endInput);
+    amountsRow.appendChild(endCol);
+
+    block.appendChild(amountsRow);
+
+    const denomToggleRow = document.createElement("div");
+    denomToggleRow.className = "denom-toggle-row";
+    const denomToggleBtn = document.createElement("button");
+    denomToggleBtn.className = "link-btn";
+    denomToggleBtn.textContent = openDenom[day.id] ? "- Hide denominations" : "+ Count denominations";
+    denomToggleRow.appendChild(denomToggleBtn);
+    block.appendChild(denomToggleRow);
+
+    if (openDenom[day.id]){
+      const panel = document.createElement("div");
+      panel.className = "denom-panel";
+
+      const grid = document.createElement("div");
+      grid.className = "denom-grid";
+
+      function recomputeTotal(){
+        let sum = 0;
+        DENOMS.forEach(v => {
+          const c = parseFloat(day.denom[v]) || 0;
+          sum += c * v;
+        });
+        return sum;
+      }
+
+      const totalDiv = document.createElement("div");
+      totalDiv.className = "denom-total";
+
+      function refreshTotal(){
+        totalDiv.textContent = "Total: \u20b9" + recomputeTotal();
+      }
+
+      DENOMS.forEach(v => {
+        const row = document.createElement("div");
+        row.className = "denom-row";
+        const lbl = document.createElement("span");
+        lbl.className = "denom-lbl";
+        lbl.textContent = "\u20b9" + v + " x";
+        row.appendChild(lbl);
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.inputMode = "numeric";
+        inp.min = "0";
+        inp.className = "denom-input";
+        inp.placeholder = "0";
+        inp.value = day.denom[v] || "";
+        inp.addEventListener("input", () => {
+          day.denom[v] = inp.value;
+          saveCash();
+          refreshTotal();
+        });
+        row.appendChild(inp);
+        grid.appendChild(row);
+      });
+
+      panel.appendChild(grid);
+      refreshTotal();
+      panel.appendChild(totalDiv);
+
+      const actions = document.createElement("div");
+      actions.className = "denom-actions";
+      const useStartBtn = document.createElement("button");
+      useStartBtn.className = "reset";
+      useStartBtn.textContent = "Use as Start";
+      useStartBtn.addEventListener("click", () => commitStart(String(recomputeTotal())));
+      const useEndBtn = document.createElement("button");
+      useEndBtn.className = "reset";
+      useEndBtn.textContent = "Use as End";
+      useEndBtn.addEventListener("click", () => commitEnd(String(recomputeTotal())));
+      actions.appendChild(useStartBtn);
+      actions.appendChild(useEndBtn);
+      panel.appendChild(actions);
+
+      block.appendChild(panel);
+    }
+
+    denomToggleBtn.addEventListener("click", () => {
+      openDenom[day.id] = !openDenom[day.id];
+      render();
+    });
+
+    wrap.appendChild(block);
+  });
+
+  const addDayBtn = document.createElement("button");
+  addDayBtn.className = "reset add-day-btn";
+  addDayBtn.textContent = "+ Add day";
+  addDayBtn.addEventListener("click", () => {
+    const prev = cashDays[cashDays.length - 1];
+    cashDays.push({
+      id: "day-" + Date.now().toString(36) + Math.random().toString(36).slice(2,5),
+      note: "",
+      start: prev ? prev.end : "",
+      end: "",
+      startManual: false,
+      denom: emptyDenom()
+    });
+    saveCash();
+    render();
+  });
+  wrap.appendChild(addDayBtn);
+
+  root.appendChild(wrap);
+
+  stub.addEventListener("click", () => {
+    collapsedCats[catKey] = !collapsedCats[catKey];
+    stub.classList.toggle("collapsed");
+    wrap.classList.toggle("collapsed");
+    updateCollapseAllLabel();
+  });
+}
+
+function allSectionKeys(){
+  return items.map(s => s.cat).concat(["Cash in hand"]);
+}
+
+function updateCollapseAllLabel(){
+  const btn = document.getElementById("collapseAllBtn");
+  const allCollapsed = allSectionKeys().every(cat => collapsedCats[cat]);
+  btn.textContent = allCollapsed ? "Expand all" : "Collapse all";
+}
+
+function toggle(id){
+  state[id] = !state[id];
+  render();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSync("Saved");
+  }catch(e){
+    showSync("Save failed");
+  }
+}
+
+let syncTimer;
+function showSync(msg){
+  const badge = document.getElementById("syncBadge");
+  badge.textContent = msg;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(() => { badge.textContent = ""; }, 1500);
+}
+
+function load(){
+  loadItems();
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw){
+      state = JSON.parse(raw);
+    }
+  }catch(e){
+    state = {};
+  }
+  loadCash();
+  render();
+}
+
+document.getElementById("resetBtn").addEventListener("click", () => {
+  if (!confirm("Uncheck every item on this manifest?")) return;
+  state = {};
+  render();
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    showSync("Reset");
+  }catch(e){
+    showSync("Reset failed");
+  }
+});
+
+const backupPanel = document.getElementById("backupPanel");
+document.getElementById("backupBtn").addEventListener("click", () => {
+  const visible = backupPanel.style.display !== "none";
+  backupPanel.style.display = visible ? "none" : "block";
+  if (!visible){
+    const code = b64Encode(JSON.stringify({ items: items, checklist: state, cashDays: cashDays }));
+    const box = document.getElementById("backupCode");
+    box.value = code;
+    box.focus();
+    box.select();
+  }
+});
+
+document.getElementById("restoreBtn").addEventListener("click", () => {
+  const raw = document.getElementById("restoreInput").value.trim();
+  if (!raw){
+    showSync("Paste a code first");
+    return;
+  }
+  try{
+    const restored = JSON.parse(b64Decode(raw));
+    if (restored.items) items = restored.items;
+    state = restored.checklist || {};
+    if (restored.cashDays){
+      cashDays = restored.cashDays;
+      cashDays.forEach(d => { if (!d.denom) d.denom = emptyDenom(); });
+    } else if (restored.cash){
+      cashDays = cashFlatToDays(restored.cash);
+    }
+    saveItems();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    saveCash();
+    render();
+    showSync("Restored");
+    document.getElementById("restoreInput").value = "";
+  }catch(e){
+    showSync("Invalid code");
+  }
+});
+
+document.getElementById("collapseAllBtn").addEventListener("click", () => {
+  const target = !allSectionKeys().every(cat => collapsedCats[cat]);
+  allSectionKeys().forEach(cat => { collapsedCats[cat] = target; });
+  render();
+});
+
+document.getElementById("editModeBtn").addEventListener("click", () => {
+  editMode = !editMode;
+  const btn = document.getElementById("editModeBtn");
+  btn.textContent = editMode ? "Done editing" : "Edit list";
+  btn.classList.toggle("active", editMode);
+  render();
+});
+
+load();
+</script>
 </body>
 </html>
