@@ -526,6 +526,28 @@
   }
   .recv-btn:hover{ color:var(--green); border-color:var(--green-dim); }
   .recv-btn.undo:hover{ color:var(--rust); border-color:var(--rust-dim); }
+  .recv-expandable{ cursor:pointer; }
+  .recv-expandable:hover{ color:var(--green); }
+  .recv-expand-arrow{ display:inline-block; color:var(--ink-faint); width:10px; }
+  .recv-detail-row.collapsed{ display:none; }
+  .recv-detail{
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+    padding:12px 16px;
+    background:var(--bg-card-alt);
+  }
+  .recv-detail-col{ flex:1; min-width:220px; }
+  .recv-detail-head{
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .recv-detail-table{ width:100%; border-collapse:collapse; font-size:12px; }
+  .recv-detail-table td{ padding:4px 6px; border-bottom:1px solid var(--line-soft); color:var(--ink-muted); }
+  .recv-detail-table tr:last-child td{ border-bottom:none; }
   .badge{
     display:inline-block;
     font-size:10px;
@@ -689,9 +711,9 @@
         <span class="section-note" id="receivablesNote"></span>
       </div>
       <div class="chart-card" style="padding:0;">
-        <table class="txn">
+        <table class="txn" id="receivablesTable">
           <thead>
-            <tr><th>Date</th><th>From</th><th style="text-align:right;">Total</th><th style="text-align:right;">Your share</th><th style="text-align:right;">Owed</th><th>Status</th><th></th></tr>
+            <tr><th>Date</th><th>From</th><th style="text-align:right;">Total</th><th style="text-align:right;">Your share</th><th style="text-align:right;">Balance</th><th>Status</th><th></th></tr>
           </thead>
           <tbody id="receivablesBody"></tbody>
         </table>
@@ -732,11 +754,11 @@
     </section>
 
     <section>
-      <div class="section-head collapsible" id="catSectionHead">
-        <span class="section-title">07 — Where it goes <span class="collapse-arrow" id="catArrow">▾</span></span>
+      <div class="section-head collapsible" id="catSectionHead" aria-expanded="false">
+        <span class="section-title">07 — Where it goes <span class="collapse-arrow collapsed" id="catArrow">▾</span></span>
         <span class="section-note">top spending categories</span>
       </div>
-      <div class="collapsible-body" id="catBody">
+      <div class="collapsible-body collapsed" id="catBody">
         <div class="section-controls">
           <label for="catMonthSelect">Month</label>
           <select id="catMonthSelect"><option value="">All time</option></select>
@@ -748,11 +770,11 @@
     </section>
 
     <section>
-      <div class="section-head collapsible" id="topSectionHead">
-        <span class="section-title">08 — Largest entries <span class="collapse-arrow" id="topArrow">▾</span></span>
+      <div class="section-head collapsible" id="topSectionHead" aria-expanded="false">
+        <span class="section-title">08 — Largest entries <span class="collapse-arrow collapsed" id="topArrow">▾</span></span>
         <span class="section-note">top 10 by amount</span>
       </div>
-      <div class="collapsible-body" id="topBody">
+      <div class="collapsible-body collapsed" id="topBody">
         <div class="section-controls">
           <label for="topMonthSelect">Month</label>
           <select id="topMonthSelect"><option value="">All time</option></select>
@@ -1394,7 +1416,8 @@
     const rows = [];
 
     Object.values(groups).forEach(g => {
-      const received = codeMatchPool.filter(t => t.code === g.code).reduce((s,t)=>s+t.amount,0);
+      const repayments = codeMatchPool.filter(t => t.code === g.code);
+      const received = repayments.reduce((s,t)=>s+t.amount,0);
       const manualSig = 'code:' + g.code;
       const manuallyMarked = !!receivedMap[manualSig];
       let status, matched;
@@ -1407,7 +1430,8 @@
         total: g.total,
         yourShare: g.yourShare,
         owed: g.owed,
-        status, matched, received, isCoded:true, code:g.code, sig: manualSig
+        status, matched, received, isCoded:true, code:g.code, sig: manualSig,
+        claims: g.claims, repayments
       });
     });
 
@@ -1432,8 +1456,9 @@
 
     let pendingCount = 0, pendingTotal = 0;
 
-    rows.forEach(r => {
-      if(!r.matched){ pendingCount++; pendingTotal += (r.owed - (r.received||0)); }
+    rows.forEach((r, rowIdx) => {
+      const remaining = r.owed - (r.received||0);
+      if(!r.matched){ pendingCount++; pendingTotal += remaining; }
 
       const tr = document.createElement('tr');
       let statusHtml, actionHtml;
@@ -1444,7 +1469,7 @@
         actionHtml = '<button type="button" class="recv-btn undo" data-sig="'+escapeHtml(r.sig)+'" data-action="undo">Undo</button>';
       } else if(r.status === 'partial'){
         statusHtml = '<span class="recv-status pending">PARTIAL</span>' +
-          '<span class="recv-match">'+fmtINR(r.received)+' of '+fmtINR(r.owed)+' in via code so far</span>';
+          '<span class="recv-match">'+fmtINR(r.received)+' of '+fmtINR(r.owed)+' in — '+fmtINR(remaining)+' balance remaining</span>';
         actionHtml = '<button type="button" class="recv-btn" data-sig="'+escapeHtml(r.sig)+'" data-action="mark">Mark rest received</button>';
       } else {
         let matchHint = '';
@@ -1458,20 +1483,56 @@
         actionHtml = '<button type="button" class="recv-btn" data-sig="'+escapeHtml(r.sig)+'" data-action="mark">Mark received</button>';
       }
 
+      const labelHtml = r.isCoded
+        ? '<span class="recv-expand-arrow" id="recvArrow'+rowIdx+'">▸</span> '+escapeHtml(r.label)
+        : escapeHtml(r.label);
+
       tr.innerHTML =
         '<td>'+r.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})+'</td>'+
-        '<td>'+escapeHtml(r.label)+'</td>'+
+        '<td'+(r.isCoded ? ' class="recv-expandable" id="recvRow'+rowIdx+'"' : '')+'>'+labelHtml+'</td>'+
         '<td class="amt-cell">'+fmtINR(r.total)+'</td>'+
         '<td class="amt-cell">'+fmtINR(r.yourShare)+'</td>'+
-        '<td class="amt-cell val-out">'+fmtINR(r.owed)+'</td>'+
+        '<td class="amt-cell val-out">'+fmtINR(remaining)+'</td>'+
         '<td>'+statusHtml+'</td>'+
         '<td>'+actionHtml+'</td>';
       body.appendChild(tr);
+
+      if(r.isCoded){
+        const detailTr = document.createElement('tr');
+        detailTr.className = 'recv-detail-row collapsed';
+        detailTr.id = 'recvDetail'+rowIdx;
+        const claimRowsHtml = r.claims.map(t =>
+          '<tr><td>'+t.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})+'</td>'+
+          '<td>'+escapeHtml(t.category)+(t.description?' — '+escapeHtml(t.description):'')+'</td>'+
+          '<td class="amt-cell val-out">'+fmtINR(claimBreakdown(t).owed)+'</td></tr>'
+        ).join('');
+        const repayRowsHtml = r.repayments.length ? r.repayments.map(t =>
+          '<tr><td>'+t.date.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})+'</td>'+
+          '<td>'+escapeHtml(t.rawType||'')+(t.description?' — '+escapeHtml(t.description):'')+'</td>'+
+          '<td class="amt-cell val-in">'+fmtINR(t.amount)+'</td></tr>'
+        ).join('') : '<tr><td colspan="3" style="color:var(--ink-faint);">nothing received yet</td></tr>';
+        detailTr.innerHTML =
+          '<td colspan="7"><div class="recv-detail">'+
+            '<div class="recv-detail-col"><div class="recv-detail-head">What you paid</div><table class="recv-detail-table">'+claimRowsHtml+'</table></div>'+
+            '<div class="recv-detail-col"><div class="recv-detail-head">What\'s come back</div><table class="recv-detail-table">'+repayRowsHtml+'</table></div>'+
+          '</div></td>';
+        body.appendChild(detailTr);
+      }
     });
 
     note.textContent = pendingCount
       ? (pendingCount + ' pending · ' + fmtINR(pendingTotal) + ' owed to you')
       : 'all caught up';
+
+    body.querySelectorAll('.recv-expandable').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const idx = cell.id.replace('recvRow','');
+        const detail = document.getElementById('recvDetail'+idx);
+        const arrow = document.getElementById('recvArrow'+idx);
+        const collapsed = detail.classList.toggle('collapsed');
+        arrow.textContent = collapsed ? '▸' : '▾';
+      });
+    });
 
     body.querySelectorAll('.recv-btn').forEach(btn => {
       btn.addEventListener('click', () => {
